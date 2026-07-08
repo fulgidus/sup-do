@@ -1,0 +1,7 @@
+[Unit]
+Description=Supabase free tier keepalive logger
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/supabase_keepalive.env
+ExecStart=%h/.local/bin/supabase_keepalive.sh

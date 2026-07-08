@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.sup-do</string>
+
+    <!-- Sources the env file (secrets) in a subshell, then execs the script.
+         launchd has no native EnvironmentFile directive like systemd, so we
+         load the secrets via bash instead of embedding them in this plist. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>source ~/.config/supabase_keepalive.env &amp;&amp; exec ~/.local/bin/supabase_keepalive.sh</string>
+    </array>
+
+    <!-- Runs at 04:00 / 10:00 / 16:00 / 22:00 local time -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key><integer>4</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>10</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>16</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>22</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <!-- launchd stdout/stderr, separate from the script's own log at
+         ~/.local/state/supabase_keepalive.log -->
+    <key>StandardOutPath</key>
+    <string>/tmp/sup-do.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/sup-do.stderr.log</string>
+
+    <!-- Do not run immediately on load; wait for the next scheduled interval -->
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
