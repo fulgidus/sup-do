@@ -11,13 +11,13 @@ Runs as a `systemd --user` timer on Linux (or `launchd` on macOS). No root requi
 3. It sends a REST `POST` to `https://<project-ref>.supabase.co/rest/v1/audit_logs` using the **secret key** in the `apikey` header.
 4. It logs the outcome and response time locally to `~/.local/state/supabase_keepalive.log`.
 
-On Linux, if the machine is off or asleep at the scheduled time, the timer catches up the missed run at the next boot (`Persistent=true`). **launchd has no exact equivalent** — a missed `StartCalendarInterval` firing is not automatically replayed when the Mac wakes up. If catch-up matters on macOS, consider switching to `StartInterval` with your own last-run bookkeeping, or just accept that a sleeping laptop may skip a slot.
+On Linux, if the machine is off or asleep at the scheduled time, the timer catches up the missed run at the next boot (`Persistent=true`). **launchd has no exact equivalent** - a missed `StartCalendarInterval` firing is not automatically replayed when the Mac wakes up. If catch-up matters on macOS, consider switching to `StartInterval` with your own last-run bookkeeping, or just accept that a sleeping laptop may skip a slot.
 
 ## Requirements
 
 - Bash, `curl`, `jq`
 - A Supabase project with an `audit_logs` table (schema below)
-- **macOS**: `brew install coreutils` (for `gdate`, needed for sub-second timestamp precision — the script has an automatic fallback if it's not installed, at the cost of precision)
+- **macOS**: `brew install coreutils` (for `gdate`, needed for sub-second timestamp precision - the script has an automatic fallback if it's not installed, at the cost of precision)
 
 ## Table schema
 
@@ -64,9 +64,9 @@ SUPABASE_SECRET_KEY=sb_secret_xxxxxxxx
 PROJECT_REF=xxxxxxxxxxxxxxxx
 ```
 
-> Use the **secret key** (new `sb_secret_...` format), not the legacy `service_role`. The secret key bypasses Row Level Security policies — keep it out of version control, `chmod 600`, never in a public repository.
+> Use the **secret key** (new `sb_secret_...` format), not the legacy `service_role`. The secret key bypasses Row Level Security policies - keep it out of version control, `chmod 600`, never in a public repository.
 >
-> Important: with Supabase's new API keys (`sb_publishable_...` / `sb_secret_...`), the `Authorization: Bearer` header **must not be used** — they aren't JWTs and the platform rejects them there. Pass them only via the `apikey` header.
+> Important: with Supabase's new API keys (`sb_publishable_...` / `sb_secret_...`), the `Authorization: Bearer` header **must not be used** - they aren't JWTs and the platform rejects them there. Pass them only via the `apikey` header.
 
 ### 2. Install the script
 
@@ -125,10 +125,6 @@ Edit `OnCalendar` in the `.timer` file (systemd) or `StartCalendarInterval` in t
 
 ## Security notes
 
-- Never commit `supabase_keepalive.env` — only the `.example.env` file.
+- Never commit `supabase_keepalive.env` - only the `.example.env` file.
 - The secret key bypasses RLS: if compromised, an attacker has full access to the `audit_logs` table (and any other table, if the key isn't scoped). Use a dedicated secret key for this purpose if possible, not your project's main one.
-- The local log (`~/.local/state/supabase_keepalive.log`) contains no secrets — just timestamp/status/elapsed — safe to share for debugging.
-
-## License
-
-MIT (or whatever you prefer — update here).
+- The local log (`~/.local/state/supabase_keepalive.log`) contains no secrets - just timestamp/status/elapsed - safe to share for debugging.
