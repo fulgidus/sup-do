@@ -1,0 +1,7 @@
+[Unit]
+Description=sup-do: Supabase free tier keepalive logger
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/sup-do.env
+ExecStart=%h/.local/bin/sup-do.sh

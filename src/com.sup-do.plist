@@ -12,7 +12,7 @@
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>source ~/.config/supabase_keepalive.env &amp;&amp; exec ~/.local/bin/supabase_keepalive.sh</string>
+        <string>source ~/.config/sup-do.env &amp;&amp; exec ~/.local/bin/sup-do.sh</string>
     </array>
 
     <!-- Runs at 04:00 / 10:00 / 16:00 / 22:00 local time -->
@@ -37,7 +37,7 @@
     </array>
 
     <!-- launchd stdout/stderr, separate from the script's own log at
-         ~/.local/state/supabase_keepalive.log -->
+         ~/.local/state/sup-do.log -->
     <key>StandardOutPath</key>
     <string>/tmp/sup-do.stdout.log</string>
     <key>StandardErrorPath</key>

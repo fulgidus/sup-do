@@ -21,7 +21,7 @@ _date() {
 # --- Config ---
 SUPABASE_URL="https://${PROJECT_REF}.supabase.co"
 REST_URL="${SUPABASE_URL}/rest/v1/audit_logs"
-LOG="$HOME/.local/state/supabase_keepalive.log"
+LOG="$HOME/.local/state/sup-do.log"
 SOURCE_ID=666
 LEVEL="debug"
 mkdir -p "$(dirname "$LOG")"
@@ -96,7 +96,7 @@ BODY=$(jq -n \
   '{source: ($source | tonumber), level: $level, message: $message, payload: $payload}')
 
 # --- Invio ---
-http_code=$(curl -s -o /tmp/supabase-keepalive-response.json -w '%{http_code}' \
+http_code=$(curl -s -o /tmp/sup-do-response.json -w '%{http_code}' \
   -X POST "$REST_URL" \
   -H "apikey: ${SUPABASE_SECRET_KEY}" \
   -H "Content-Type: application/json" \
@@ -109,7 +109,7 @@ ELAPSED=$(awk -v s="$START_EPOCH" -v e="$END_EPOCH" 'BEGIN{printf "%.4f", e-s}')
 echo "${START_TS} audit insert status=${http_code} elapsed=${ELAPSED}s" >> "$LOG"
 
 if [[ "$http_code" -ge 300 ]]; then
-  echo "Response: $(cat /tmp/supabase-keepalive-response.json)" >> "$LOG"
+  echo "Response: $(cat /tmp/sup-do-response.json)" >> "$LOG"
   else
-  rm -f /tmp/supabase-keepalive-response.json
+  rm -f /tmp/sup-do-response.json
 fi

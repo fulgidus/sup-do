@@ -9,7 +9,7 @@ Runs as a `systemd --user` timer on Linux (or `launchd` on macOS). No root requi
 1. A timer (systemd or launchd) wakes the script at fixed times (default: 04:00 / 10:00 / 16:00 / 22:00).
 2. The script collects a precise timestamp, machine info (uptime, CPU load, RAM, hostname), and builds a JSON payload.
 3. It sends a REST `POST` to `https://<project-ref>.supabase.co/rest/v1/audit_logs` using the **secret key** in the `apikey` header.
-4. It logs the outcome and response time locally to `~/.local/state/supabase_keepalive.log`.
+4. It logs the outcome and response time locally to `~/.local/state/sup-do.log`.
 
 On Linux, if the machine is off or asleep at the scheduled time, the timer catches up the missed run at the next boot (`Persistent=true`). **launchd has no exact equivalent** - a missed `StartCalendarInterval` firing is not automatically replayed when the Mac wakes up. If catch-up matters on macOS, consider switching to `StartInterval` with your own last-run bookkeeping, or just accept that a sleeping laptop may skip a slot.
 
@@ -46,18 +46,32 @@ insert into public.log_sources (id, created_at, name, description)
 values (1, now(), 'Machine name', 'Free-form description');
 ```
 
-## Setup
+## Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fulgidus/sup-do/main/install.sh | bash
+```
+
+The script will prompt you to fill in `SUPABASE_SECRET_KEY` and `PROJECT_REF`.
+
+### Uninstall
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fulgidus/sup-do/main/install.sh | bash -s -- -r
+```
+
+## Manual setup
 
 ### 1. Configuration
 
 Copy the example file and fill in your keys (**never commit this file**):
 
 ```bash
-cp supabase_keepalive.example.env ~/.config/supabase_keepalive.env
-chmod 600 ~/.config/supabase_keepalive.env
+cp sup-do.example.env ~/.config/sup-do.env
+chmod 600 ~/.config/sup-do.env
 ```
 
-Required content in `~/.config/supabase_keepalive.env`:
+Required content in `~/.config/sup-do.env`:
 
 ```bash
 SUPABASE_SECRET_KEY=sb_secret_xxxxxxxx
@@ -72,23 +86,23 @@ PROJECT_REF=xxxxxxxxxxxxxxxx
 
 ```bash
 mkdir -p ~/.local/bin
-cp supabase_keepalive.sh ~/.local/bin/
-chmod +x ~/.local/bin/supabase_keepalive.sh
+cp sup-do.sh ~/.local/bin/
+chmod +x ~/.local/bin/sup-do.sh
 ```
 
 ### 3a. Linux (systemd --user)
 
 ```bash
 mkdir -p ~/.config/systemd/user
-cp supabase_keepalive.service supabase_keepalive.timer ~/.config/systemd/user/
+cp sup-do.service sup-do.timer ~/.config/systemd/user/
 
 systemctl --user daemon-reload
-systemctl --user enable --now supabase_keepalive.timer
+systemctl --user enable --now sup-do.timer
 ```
 
 Verify:
 ```bash
-systemctl --user list-timers supabase_keepalive.timer
+systemctl --user list-timers sup-do.timer
 ```
 
 ### 3b. macOS (launchd)
@@ -104,14 +118,14 @@ Adjust the `Hour`/`Minute` entries under `StartCalendarInterval` in the plist fo
 
 Linux:
 ```bash
-systemctl --user start supabase_keepalive.service
-cat ~/.local/state/supabase_keepalive.log
+systemctl --user start sup-do.service
+cat ~/.local/state/sup-do.log
 ```
 
 macOS:
 ```bash
 launchctl start com.sup-do
-cat ~/.local/state/supabase_keepalive.log
+cat ~/.local/state/sup-do.log
 ```
 
 Expected output:
@@ -125,6 +139,6 @@ Edit `OnCalendar` in the `.timer` file (systemd) or `StartCalendarInterval` in t
 
 ## Security notes
 
-- Never commit `supabase_keepalive.env` - only the `.example.env` file.
+- Never commit `sup-do.env` - only the `.example.env` file.
 - The secret key bypasses RLS: if compromised, an attacker has full access to the `audit_logs` table (and any other table, if the key isn't scoped). Use a dedicated secret key for this purpose if possible, not your project's main one.
-- The local log (`~/.local/state/supabase_keepalive.log`) contains no secrets - just timestamp/status/elapsed - safe to share for debugging.
+- The local log (`~/.local/state/sup-do.log`) contains no secrets - just timestamp/status/elapsed - safe to share for debugging.
