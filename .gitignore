@@ -1,2 +1,4 @@
+.pi
+
 *.env
 !*.example.env
