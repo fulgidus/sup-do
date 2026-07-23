@@ -25,7 +25,7 @@ ensure_deps() {
   command -v jq   >/dev/null 2>&1 || missing+=("jq")
 
   if [[ "$(detect_os)" == "macos" ]]; then
-    command -v gdate >/dev/null 2>&1 || echo "  [warn] coreutils not installed — timestamps will be second-precision only"
+    command -v gdate >/dev/null 2>&1 || echo "  [warn] coreutils not installed - timestamps will be second-precision only"
   fi
 
   if [[ ${#missing[@]} -gt 0 ]]; then
@@ -81,10 +81,10 @@ setup_config() {
 
   echo ""
   echo "  ================================================"
-  echo "  Edit $ENV_FILE — fill in your Supabase values:"
+  echo "  Edit $ENV_FILE - fill in your Supabase values:"
   echo ""
-  echo "    SUPABASE_SECRET_KEY=<your_sb_secret_xxx>"
-  echo "    PROJECT_REF=<your_project_ref>"
+  echo "    SUPABASE_SECRET_KEY=sb_secret_xxx"
+  echo "    PROJECT_REF=project_ref"
   echo "  ================================================"
   echo ""
 
@@ -100,11 +100,11 @@ setup_config() {
 }
 
 validate_config() {
-  if [[ -z "${SUPABASE_SECRET_KEY:-}" || "$SUPABASE_SECRET_KEY" == *"<SUPABASE_SECRET_KEY>" ]]; then
+  if [[ -z "${SUPABASE_SECRET_KEY:-}" || "$SUPABASE_SECRET_KEY" == *"SUPABASE_SECRET_KEY" ]]; then
     echo "  [error] SUPABASE_SECRET_KEY not set in $ENV_FILE"
     exit 1
   fi
-  if [[ -z "${PROJECT_REF:-}" || "$PROJECT_REF" == *"<PROJECT_REF>" ]]; then
+  if [[ -z "${PROJECT_REF:-}" || "$PROJECT_REF" == *"PROJECT_REF" ]]; then
     echo "  [error] PROJECT_REF not set in $ENV_FILE"
     exit 1
   fi
@@ -156,7 +156,7 @@ setup_tables() {
   src_code=$(rest_api "GET" "log_sources?select=id&limit=1")
 
   if [[ "$src_code" == "404" ]]; then
-    echo "  [setup] log_sources table missing — run the SQL above and re-run."
+    echo "  [setup] log_sources table missing - run the SQL above and re-run."
     exit 1
   fi
 
@@ -176,7 +176,7 @@ setup_tables() {
   if [[ "$count" -gt 0 ]]; then
     echo ""
     echo "  Existing log sources:"
-    echo "$sources_json" | jq -r '.[] | "    \(.id)  \(.name) — \(.description // "-")"'
+    echo "$sources_json" | jq -r '.[] | "    \(.id)  \(.name) - \(.description // "-")"'
     echo ""
     echo "  Options:"
     echo "    1) Pick an existing source"
@@ -301,7 +301,7 @@ remove_macos() {
 
 usage() {
   cat <<EOF
-sup-do — Supabase free-tier keepalive
+sup-do - Supabase free-tier keepalive
 
 Install:
   curl -fsSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/install.sh | bash
@@ -332,7 +332,7 @@ while getopts "rh" opt; do
   esac
 done
 
-echo "==> sup-do — Supabase keepalive"
+echo "==> sup-do - Supabase keepalive"
 echo ""
 
 OS="$(detect_os)"
